@@ -10,19 +10,21 @@ logger = logging.getLogger('file')
 logging.basicConfig(level=logging.INFO)
 
 class File(ABC):
-    """ Represents a file on disk. Provides facilities for hashing the file,
-        and pulling EXIF data while minimizing the number of times we read the
-        file data. """
+    """ """
 
     def __init__(self, fp, path, mime, exif=None):
-        """ Creates a new file pointer for processing. 
+        """ Create a new `File` object for the file data located at `path` and
+            which is represented by the open file pointer `fp`.
             
-            @param  path    The path to the file. """
+            @param  fp      An open file pointer to the path.
+            @param  path    The path to the file.
+            @param  mime    The string MIME type of the file.
+            @param  exif    A dictionary of EXIF value. """
         if not path or not isinstance(path, str):
             raise ValueError(f"Path must be a non-empty string. Got `{path}`.")
 
         if not os.path.isfile(path):
-            raise RuntimeError(f"{path} does not exist.")
+            raise RuntimeError(f"{path} does not exist or is not a file.")
 
         self.fp = fp 
         self.path = path
@@ -33,11 +35,11 @@ class File(ABC):
         super().__init__()
 
     def __del__(self):
-        """ Close the file pointer on object destruct. """
+        """ Closes the open file pointer on object destruct. """
         self.fp.close()
 
     def get_hash(self):
-        """ Returns the SHA256 file hash. """
+        """ Returns the hash of the file pointer. """
         m = hashlib.sha256()
         m.update(self.fp.read())
         h = m.digest()
@@ -45,14 +47,20 @@ class File(ABC):
         return h
 
     def creation_date(self):
-        """ """
+        """ This method should be implemented by the inheriting class. The
+            child class should call this function to ensure that the EXIF data
+            is populated. """
         if not self.exif:
             self.exif = self.get_exif()
 
     def __path_from_date(self, root, name):
-        """ Returns the target path that we should write a file to. 
-        
-            @param  name    The name of the file at the destination. """
+        """ Returns a path based on the given creation date, in the format of:
+            `<root>/<year>/<month>/<name>`.
+            
+            @param  root    The root of our absolute path.
+            @param  name    The filename of our path. 
+            
+            @returns    An absolute path. """
         creation_date = self.creation_date()
         return os.path.join(root, 
                 creation_date["year"], 
@@ -60,28 +68,28 @@ class File(ABC):
                 name) 
 
     def hashes_match(self, path):
-        """ Returns `True` if the file at the location matches the file
-            represented by this `File` object. Used to ensure that we don't
-            unnecessarily copy an identical file. 
+        """ Returns a boolean indicating if the hash of `path` matches the
+            object hash.
             
-            @param  path    The path we intend to move this file to. """
+            @param  path    The path to compare hashes with.
+            
+            @returns    `True` if the path's hash matches the objects hash,
+                        `False` otherwise. """
         with open(path, "rb") as f:
             m = hashlib.sha256()
             m.update(f.read())
             return self.hash == m.digest()
 
     def write_check(self, path):
-        """ Checks to ensure that the path we are intending to write to is
-            empty. If a file exists, checks to see if the hash of that file
-            matches the hash of the file represented by this `File` object. 
-
-            @param  path    The target path.
-
-            @returns    Returns an enum value. `UNSAFE` if a file exists at the
-                        target path and the hashes do not match. `IDENTICAL` if
-                        the files are exact matches, and `SAFE` if no file
-                        currently exists at the target location.
-               """
+        """ Runs some preliminary checks to ensure that we do not accidentally
+            overwrite an existing file. If a file exists at `path` we check
+            its hash. If the hashes match, we return `IDENTICAL`. If they do
+            not match, we return `UNSAFE` - we do not want to write the file
+            to this path. If no file exists at `path` we return `SAFE`.
+            
+            @param  path    The path to check. 
+            
+            @returns    `Safety` """
         if os.path.exists(path):
             if not self.hashes_match(path):
                 return Safety.UNSAFE 
@@ -90,7 +98,14 @@ class File(ABC):
         return Safety.SAFE
 
     def target_path(self, root):
-        """ """
+        """ Creates a "safe" target path by performing some basic checks. If
+            a file exists at the target path with a non-identical hash we
+            create a new file with a `_N` prefix (where `N` is an integer
+            value). 
+            
+            @param  root    The root path to set the target path in. 
+            
+            @returns    An absolute path to write a file to. """
         name, ext = os.path.splitext(os.path.basename(self.path))
         mod = ''
         i = 1
@@ -109,18 +124,19 @@ class File(ABC):
         return None
 
     def get_exif(self):
-        """ """
+        """ Returns the EXIF data for the file. This should be implemented
+            in the inheriting class. """
         raise NotImplementedError()
 
     def make_nested_dirs(self, target):
-        """ """
+        """ Create nested directories if they do not exist. """
         dirs = os.path.dirname(target)
 
         if not os.path.exists(dirs):
             os.makedirs(dirs)
 
     def move(self, root):
-        """ """
+        """ Safely move this file to the target path. """
         target = self.target_path(root)
 
         if target:
@@ -129,7 +145,7 @@ class File(ABC):
             shutil.move(self.path, target)
 
     def copy(self, root):
-        """ """
+        """ Safely copy this file to the target path. """
         target = self.target_path(root)
 
         if target:

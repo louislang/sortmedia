@@ -12,7 +12,7 @@ for f in Path("test/").rglob("*"):
     mime = get_mimetype(f) 
 
     if is_video(mime):
-        #obj = Video(f, path)
+        #obj = Video(f, path, mime)
         print("Video not supported!")
     elif is_photo(mime):
         obj = Photo(f, path, mime)
