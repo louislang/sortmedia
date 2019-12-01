@@ -1,0 +1,6 @@
+cffi==1.13.2
+filemagic==1.6
+piexif==1.1.3
+Pillow==6.2.1
+pycparser==2.19
+pyheif==0.3.2
