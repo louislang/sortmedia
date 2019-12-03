@@ -10,6 +10,10 @@ class Photo(File):
     def creation_date(self):
         """ Returns the creation date based on the file's EXIF data. """
         super().creation_date()
+
+        # If we do not have exif data, return `None`.
+        if not self.exif:
+            return None
         
         keys = ["DateCreated", 
                 "DateTimeCreated", 
@@ -55,6 +59,6 @@ class Photo(File):
         else:
             img = PIL.Image.open(self.fp)
             exif = img._getexif().items()
-            self.fp.seek(0)
-
+        
+        self.fp.seek(0)
         return { PIL.ExifTags.TAGS[k]: v for k, v in exif if k in PIL.ExifTags.TAGS }
