@@ -1,13 +1,13 @@
 import os
-import util
 import shutil
 import piexif
 import unittest
 import random, string
 
 from PIL import Image
-from util import Safety
-from photo import Photo
+from mediasort.util import Safety
+from mediasort import util
+from mediasort.photo import Photo
 
 class TestFile(unittest.TestCase):
     def randomword(self, n):

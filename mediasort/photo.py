@@ -3,7 +3,7 @@ import piexif
 import pyheif
 import PIL.Image, PIL.ExifTags
 
-from file import File
+from mediasort.file import File
 from datetime import datetime
 
 class Photo(File):

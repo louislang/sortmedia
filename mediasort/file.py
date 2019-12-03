@@ -3,7 +3,7 @@ import shutil
 import hashlib
 import logging
 
-from util import Safety
+from mediasort.util import Safety
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger('file')
