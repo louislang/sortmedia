@@ -12,22 +12,14 @@ logging.basicConfig(level=logging.INFO)
 class File(ABC):
     """ """
 
-    def __init__(self, fp, path, mime, exif=None):
+    def __init__(self, fp, mime, exif=None):
         """ Create a new `File` object for the file data located at `path` and
             which is represented by the open file pointer `fp`.
             
             @param  fp      An open file pointer to the path.
-            @param  path    The path to the file.
             @param  mime    The string MIME type of the file.
             @param  exif    A dictionary of EXIF value. """
-        if not path or not isinstance(path, str):
-            raise ValueError(f"Path must be a non-empty string. Got `{path}`.")
-
-        if not os.path.isfile(path):
-            raise RuntimeError(f"{path} does not exist or is not a file.")
-
         self.fp = fp 
-        self.path = path
         self.hash = self.get_hash()
         self.exif = None 
         self.mime = mime 
@@ -62,6 +54,10 @@ class File(ABC):
             
             @returns    An absolute path. """
         creation_date = self.creation_date()
+
+        if not creation_date:
+            return os.path.join(root, 'unknown', name) 
+
         return os.path.join(root, 
                 creation_date["year"], 
                 creation_date["month"], 
@@ -106,15 +102,17 @@ class File(ABC):
             @param  root    The root path to set the target path in. 
             
             @returns    An absolute path to write a file to. """
-        name, ext = os.path.splitext(os.path.basename(self.path))
+        name, ext = os.path.splitext(os.path.basename(self.fp.name))
         mod = ''
         i = 1
         path = self.__path_from_date(root, f"{name}{mod}{ext}") 
+
         check = self.write_check(path)
 
         while check == Safety.UNSAFE:
-            mod = '_{i}'
-            path = os.path.join(root, f"{name}{mod}{ext}")
+            mod = f'_{i}'
+
+            path = self.__path_from_date(root, f"{name}{mod}{ext}")
             check = self.write_check(path)
             i = i + 1
 
@@ -141,8 +139,7 @@ class File(ABC):
 
         if target:
             self.make_nested_dirs(target)
-            print(f"Moving to {target}")
-            shutil.move(self.path, target)
+            shutil.move(self.fp.name, target)
 
     def copy(self, root):
         """ Safely copy this file to the target path. """
@@ -150,5 +147,4 @@ class File(ABC):
 
         if target:
             self.make_nested_dirs(target)
-            print(f"Copying to {target}")
-            shutil.copyfile(self.path, target)
+            shutil.copyfile(self.fp.name, target)

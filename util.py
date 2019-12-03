@@ -12,12 +12,12 @@ def get_mimetype(fp):
         @param  fp  The file pointer to process. 
         
         @return     A string representing the mimetype. """
-    mimetype = None
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_buffer(fp.read(512))
         fp.seek(0)
+        return mimetype
 
-    return mimetype
+    return None 
 
 def is_video(mime):
     """ Returns `True` if the specified file pointer represents a video.
