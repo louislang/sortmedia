@@ -42,13 +42,16 @@ class MediaSort:
                 obj = Photo(path, mime)
                 total_photos = total_photos + 1
 
-            if obj and not self.dry_run:
-                took_action = False
-                if not self.copy:
-                    took_action = obj.move(dst)
+            if obj:
+                if self.dry_run:
+                    logger.info(path)
                 else:
-                    took_action = obj.copy(dst)
-                logger.info(f"{path}{' -- DUPLICATE' if not took_action else ''}")
+                    took_action = False
+                    if not self.copy:
+                        took_action = obj.move(dst)
+                    else:
+                        took_action = obj.copy(dst)
+                    logger.info(f"{path}{' -- DUPLICATE' if not took_action else ''}")
 
         logger.info(f"Processed {total_photos+total_videos} files")
         logger.info(f"\tTotal videos: {total_videos}")
