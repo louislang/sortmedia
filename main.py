@@ -43,7 +43,7 @@ class MediaSort:
                     obj.copy(dst)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c','--copy', help='Copy instead of move files.', required=False, default=False)
+parser.add_argument('-c','--copy', action='store_true', help='Copy instead of move files.', required=False, default=False)
 parser.add_argument('src', nargs='+', help='The media source directory to process.')
 parser.add_argument('dst', nargs='+', help='The destination directory to move or copy files.')
 args = parser.parse_args()
