@@ -68,6 +68,7 @@ class File(ABC):
         return os.path.join(root, 
                 creation_date["year"], 
                 creation_date["month"], 
+                creation_date["day"],
                 name) 
 
     def hashes_match(self, path):
