@@ -6,18 +6,14 @@ class Safety(Enum):
     UNSAFE = 2
     IDENTICAL = 3
 
-def get_mimetype(fp):
+def get_mimetype(path):
     """ Get the mimetype of the given file pointer. 
     
-        @param  fp  The file pointer to process. 
+        @param  path    Path to a file to get the MIME for. 
         
         @return     A string representing the mimetype. """
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
-        mimetype = m.id_buffer(fp.read(512))
-        fp.seek(0)
-        return mimetype
-
-    return None 
+        return m.id_filename(path)
 
 def is_video(mime):
     """ Returns `True` if the specified file pointer represents a video.

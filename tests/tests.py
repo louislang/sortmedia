@@ -67,19 +67,15 @@ class TestFile(unittest.TestCase):
         img_b = self.__create_file(50, 50, 'blue')
         img_c = self.__create_file(50, 50, 'red')
 
-        fp_a = open(img_a, 'rb')
-        fp_c = open(img_c, 'rb')
-
-        photo_a = Photo(fp_a, 'image/jpeg')
-        photo_c = Photo(fp_c, 'image/jpeg')
+        photo_a = Photo(img_a, 'image/jpeg')
+        photo_c = Photo(img_b, 'image/jpeg')
 
         self.assertTrue(photo_a.hashes_match(img_b))
         self.assertFalse(photo_a.hashes_match(img_c))
 
     def test_no_exif(self):
         img = self.__create_file(50, 50, 'green', withExif=False)
-        fp = open(img, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img, 'image/jpeg')
         target = photo.target_path('foobar')
 
         basename = os.path.basename(img)
@@ -87,15 +83,13 @@ class TestFile(unittest.TestCase):
 
     def test_path_from_date(self):
         img_a = self.__create_file(50, 50, 'red', name='foobar')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
         target = photo.target_path('foobar')
         self.assertEqual(target, 'foobar/2099/September/foobar.jpg')
 
     def test_ignore_duplicate_at_target(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
 
         ret = photo.write_check(img_a)
         self.assertEqual(Safety.IDENTICAL, ret)
@@ -105,8 +99,7 @@ class TestFile(unittest.TestCase):
 
     def test_no_file_at_target(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
 
         ret = photo.write_check('foobar/ham.jpg')
         self.assertEqual(Safety.SAFE, ret)
@@ -126,8 +119,7 @@ class TestFile(unittest.TestCase):
         with open(path, "w") as f:
             f.write("Hello world!")
 
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
 
         ret = photo.write_check(path)
         self.assertEqual(Safety.UNSAFE, ret)
@@ -137,37 +129,33 @@ class TestFile(unittest.TestCase):
 
     def test_make_nested_dirs(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
         photo.make_nested_dirs('test_files/baz/ham.jpg')
         self.assertTrue(os.path.isdir('test_files/baz'))
 
     def test_move(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
         photo.move('test_files/move')
         self.assertTrue(os.path.exists('test_files/move/2099/September/ham.jpg'))
 
     def test_copy(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
-        fp = open(img_a, 'rb')
-        photo = Photo(fp, 'image/jpeg')
+        photo = Photo(img_a, 'image/jpeg')
         photo.copy('test_files/copy')
         self.assertTrue(os.path.exists('test_files/copy/2099/September/ham.jpg'))
 
 class TestPhoto(unittest.TestCase):
     def test_heic(self):
-        fp = open('tests/files/lime.heic', 'rb')
-        photo = Photo(fp, 'image/heic')
+        photo = Photo('tests/files/lime.heic', 'image/heic')
         target = photo.target_path('foo')
         self.assertEqual(target, 'foo/2017/October/lime.heic')
 
 class TestUtil(unittest.TestCase):
     def test_read_mime(self):
-        with open('tests/files/lime.heic', 'rb') as f:
-            mime = util.get_mimetype(f)
-            self.assertEqual(mime, 'image/heic')
+        path = 'tests/files/lime.heic'
+        mime = util.get_mimetype(path)
+        self.assertEqual(mime, 'image/heic')
 
     def test_mime_video(self):
         self.assertTrue(util.is_video('video/mp4'))

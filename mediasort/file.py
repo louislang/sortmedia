@@ -6,20 +6,27 @@ import logging
 from mediasort.util import Safety
 from abc import ABC, abstractmethod
 
-logger = logging.getLogger('file')
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class File(ABC):
-    """ """
+    """ Represents a media file on disk. Tracks the MIME type, EXIF data and
+        an open file handle. Provides several functions for interacting with
+        the EXIF data and moving/copying the files. """
 
-    def __init__(self, fp, mime, exif=None):
+    def __init__(self, path, mime, exif=None):
         """ Create a new `File` object for the file data located at `path` and
             which is represented by the open file pointer `fp`.
             
-            @param  fp      An open file pointer to the path.
+            @param  path    The path to the target file. 
             @param  mime    The string MIME type of the file.
             @param  exif    A dictionary of EXIF value. """
-        self.fp = fp 
+
+        if not os.path.exists(path):
+            raise RuntimeError(f"The path `{path}` does not exist.")
+
+        self.path = path
+        self.fp = open(path, 'rb') 
         self.hash = self.get_hash()
         self.exif = None 
         self.mime = mime 
@@ -140,6 +147,9 @@ class File(ABC):
         if target:
             self.make_nested_dirs(target)
             shutil.move(self.fp.name, target)
+            return True
+
+        return False
 
     def copy(self, root):
         """ Safely copy this file to the target path. """
@@ -148,3 +158,6 @@ class File(ABC):
         if target:
             self.make_nested_dirs(target)
             shutil.copyfile(self.fp.name, target)
+            return True
+
+        return False
