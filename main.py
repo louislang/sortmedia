@@ -29,6 +29,7 @@ class MediaSort:
 
         total_photos = 0
         total_videos = 0
+        total_duplicates = 0
 
         for f in Path(src).rglob("*"):
             path = f.as_posix()
@@ -51,11 +52,15 @@ class MediaSort:
                         took_action = obj.move(dst)
                     else:
                         took_action = obj.copy(dst)
+
+                    if not took_action:
+                        total_duplicates = total_duplicates + 1
                     logger.info(f"{path}{' -- DUPLICATE' if not took_action else ''}")
 
         logger.info(f"Processed {total_photos+total_videos} files")
-        logger.info(f"\tTotal videos: {total_videos}")
-        logger.info(f"\tTotal photos: {total_photos}")
+        logger.info(f"\tTotal videos...: {total_videos}")
+        logger.info(f"\tTotal photos...: {total_photos}")
+        logger.info(f"\tDuplicates.....: {total_duplicates}")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c','--copy', action='store_true', help='Copy instead of move files.', required=False, default=False)
