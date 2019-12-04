@@ -85,7 +85,7 @@ class TestFile(unittest.TestCase):
         img_a = self.__create_file(50, 50, 'red', name='foobar')
         photo = Photo(img_a, 'image/jpeg')
         target = photo.target_path('foobar')
-        self.assertEqual(target, 'foobar/2099/September/foobar.jpg')
+        self.assertEqual(target, 'foobar/2099/September/29/foobar.jpg')
 
     def test_ignore_duplicate_at_target(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
@@ -95,7 +95,7 @@ class TestFile(unittest.TestCase):
         self.assertEqual(Safety.IDENTICAL, ret)
 
         target_path = photo.target_path('foobar')
-        self.assertEqual(target_path, 'foobar/2099/September/ham.jpg')
+        self.assertEqual(target_path, 'foobar/2099/September/29/ham.jpg')
 
     def test_no_file_at_target(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
@@ -105,13 +105,13 @@ class TestFile(unittest.TestCase):
         self.assertEqual(Safety.SAFE, ret)
 
         target_path = photo.target_path('foobar')
-        self.assertEqual(target_path, 'foobar/2099/September/ham.jpg')
+        self.assertEqual(target_path, 'foobar/2099/September/29/ham.jpg')
 
     def test_file_at_target_non_duplicate(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
 
         # Create a non-identical file at the target.
-        target_dir = os.path.join('test_files', '2099', 'September')
+        target_dir = os.path.join('test_files', '2099', 'September', '29')
 
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
@@ -137,19 +137,19 @@ class TestFile(unittest.TestCase):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.move('test_files/move')
-        self.assertTrue(os.path.exists('test_files/move/2099/September/ham.jpg'))
+        self.assertTrue(os.path.exists('test_files/move/2099/September/29/ham.jpg'))
 
     def test_copy(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.copy('test_files/copy')
-        self.assertTrue(os.path.exists('test_files/copy/2099/September/ham.jpg'))
+        self.assertTrue(os.path.exists('test_files/copy/2099/September/29/ham.jpg'))
 
 class TestPhoto(unittest.TestCase):
     def test_heic(self):
         photo = Photo('tests/files/lime.heic', 'image/heic')
         target = photo.target_path('foo')
-        self.assertEqual(target, 'foo/2017/October/lime.heic')
+        self.assertEqual(target, 'foo/2017/October/19/lime.heic')
 
 class TestUtil(unittest.TestCase):
     def test_read_mime(self):
