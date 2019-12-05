@@ -1,12 +1,9 @@
-import PIL
 import json
-import piexif
-import pyheif
-import PIL.Image, PIL.ExifTags
 
 from datetime import datetime
 from mediasort.file import File
 from subprocess import check_output
+
 
 class Video(File):
     def creation_date(self):
@@ -28,9 +25,10 @@ class Video(File):
     def get_exif(self):
         """ Returns the EXIF data for a photo. Includes support for HEIC file
             format. """
-        cmd = ['ffprobe', '-v', 'quiet', self.fp.name, '-print_format', 'json', 
-               '-show_entries', 
-               'stream=index,codec_type:stream_tags=creation_time:format_tags=creation_time']
+        cmd = ['ffprobe', '-v', 'quiet', self.fp.name, '-print_format', 'json',
+               '-show_entries',
+               'stream=index,codec_type:stream_tags=creation_time:' +
+               'format_tags=creation_time']
         out = check_output(cmd)
         j = json.loads(out)
         streams = j.get("streams", {})

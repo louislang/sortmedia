@@ -1,13 +1,14 @@
-import os 
+import os
 import shutil
 import hashlib
 import logging
 
 from mediasort.util import Safety
-from abc import ABC, abstractmethod
+from abc import ABC
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 class File(ABC):
     """ Represents a media file on disk. Tracks the MIME type, EXIF data and
@@ -17,8 +18,8 @@ class File(ABC):
     def __init__(self, path, mime, exif=None):
         """ Create a new `File` object for the file data located at `path` and
             which is represented by the open file pointer `fp`.
-            
-            @param  path    The path to the target file. 
+
+            @param  path    The path to the target file.
             @param  mime    The string MIME type of the file.
             @param  exif    A dictionary of EXIF value. """
 
@@ -26,10 +27,10 @@ class File(ABC):
             raise RuntimeError(f"The path `{path}` does not exist.")
 
         self.path = path
-        self.fp = open(path, 'rb') 
+        self.fp = open(path, 'rb')
         self.hash = self.get_hash()
-        self.exif = None 
-        self.mime = mime 
+        self.exif = None
+        self.mime = mime
 
         super().__init__()
 
@@ -55,28 +56,28 @@ class File(ABC):
     def __path_from_date(self, root, name):
         """ Returns a path based on the given creation date, in the format of:
             `<root>/<year>/<month>/<name>`.
-            
+
             @param  root    The root of our absolute path.
-            @param  name    The filename of our path. 
-            
+            @param  name    The filename of our path.
+
             @returns    An absolute path. """
         creation_date = self.creation_date()
 
         if not creation_date:
-            return os.path.join(root, 'unknown', name) 
+            return os.path.join(root, 'unknown', name)
 
-        return os.path.join(root, 
-                creation_date["year"], 
-                creation_date["month"], 
-                creation_date["day"],
-                name) 
+        return os.path.join(root,
+                            creation_date["year"],
+                            creation_date["month"],
+                            creation_date["day"],
+                            name)
 
     def hashes_match(self, path):
         """ Returns a boolean indicating if the hash of `path` matches the
             object hash.
-            
+
             @param  path    The path to compare hashes with.
-            
+
             @returns    `True` if the path's hash matches the objects hash,
                         `False` otherwise. """
         with open(path, "rb") as f:
@@ -90,13 +91,13 @@ class File(ABC):
             its hash. If the hashes match, we return `IDENTICAL`. If they do
             not match, we return `UNSAFE` - we do not want to write the file
             to this path. If no file exists at `path` we return `SAFE`.
-            
-            @param  path    The path to check. 
-            
+
+            @param  path    The path to check.
+
             @returns    `Safety` """
         if os.path.exists(path):
             if not self.hashes_match(path):
-                return Safety.UNSAFE 
+                return Safety.UNSAFE
             else:
                 return Safety.IDENTICAL
         return Safety.SAFE
@@ -105,15 +106,15 @@ class File(ABC):
         """ Creates a "safe" target path by performing some basic checks. If
             a file exists at the target path with a non-identical hash we
             create a new file with a `_N` prefix (where `N` is an integer
-            value). 
-            
-            @param  root    The root path to set the target path in. 
-            
+            value).
+
+            @param  root    The root path to set the target path in.
+
             @returns    An absolute path to write a file to. """
         name, ext = os.path.splitext(os.path.basename(self.fp.name))
         mod = ''
         i = 1
-        path = self.__path_from_date(root, f"{name}{mod}{ext}") 
+        path = self.__path_from_date(root, f"{name}{mod}{ext}")
 
         check = self.write_check(path)
 

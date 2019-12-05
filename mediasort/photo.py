@@ -1,10 +1,12 @@
 import PIL
 import piexif
 import pyheif
-import PIL.Image, PIL.ExifTags
+import PIL.Image
+import PIL.ExifTags
 
 from mediasort.file import File
 from datetime import datetime
+
 
 class Photo(File):
     def creation_date(self):
@@ -14,12 +16,12 @@ class Photo(File):
         # If we do not have exif data, return `None`.
         if not self.exif:
             return None
-        
-        keys = ["DateCreated", 
-                "DateTimeCreated", 
-                "DateTimeOriginal", 
-                "DateTime", 
-                "DateTimeDigitized", 
+
+        keys = ["DateCreated",
+                "DateTimeCreated",
+                "DateTimeOriginal",
+                "DateTime",
+                "DateTimeDigitized",
                 "DigitalCreationDateTime"]
 
         created_str = None
@@ -40,7 +42,6 @@ class Photo(File):
             'day': str(parsed.day)
         }
 
-    
     def get_exif(self):
         """ Returns the EXIF data for a photo. Includes support for HEIC file
             format. """
@@ -59,6 +60,7 @@ class Photo(File):
         else:
             img = PIL.Image.open(self.fp)
             exif = img._getexif().items()
-        
+
         self.fp.seek(0)
-        return { PIL.ExifTags.TAGS[k]: v for k, v in exif if k in PIL.ExifTags.TAGS }
+        return {PIL.ExifTags.TAGS[k]: v for k, v in exif if k in
+                PIL.ExifTags.TAGS}
