@@ -1,4 +1,4 @@
-import magic
+import filetype 
 from enum import Enum
 
 class Safety(Enum):
@@ -12,8 +12,7 @@ def get_mimetype(path):
         @param  path    Path to a file to get the MIME for. 
         
         @return     A string representing the mimetype. """
-    with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
-        return m.id_filename(path)
+    return filetype.guess(path).mime
 
 def is_video(mime):
     """ Returns `True` if the specified file pointer represents a video.
