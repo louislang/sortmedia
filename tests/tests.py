@@ -2,12 +2,14 @@ import os
 import shutil
 import piexif
 import unittest
-import random, string
+import random
+import string
 
 from PIL import Image
 from mediasort.util import Safety
 from mediasort import util
 from mediasort.photo import Photo
+
 
 class TestFile(unittest.TestCase):
     def randomword(self, n):
@@ -26,7 +28,10 @@ class TestFile(unittest.TestCase):
                 piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
                 piexif.ExifIFD.LensMake: u"LensMake",
                 piexif.ExifIFD.Sharpness: 65535,
-                piexif.ExifIFD.LensSpecification: ((1, 1), (1, 1), (1, 1), (1, 1)),
+                piexif.ExifIFD.LensSpecification: ((1, 1),
+                                                   (1, 1),
+                                                   (1, 1),
+                                                   (1, 1)),
         }
 
         first_ifd = {
@@ -37,9 +42,9 @@ class TestFile(unittest.TestCase):
         }
 
         exif_dict = {
-                "0th": zeroth_ifd, 
-                "Exif": exif_ifd, 
-                "1st": first_ifd, 
+                "0th": zeroth_ifd,
+                "Exif": exif_ifd,
+                "1st": first_ifd,
         }
 
         return piexif.dump(exif_dict)
@@ -50,7 +55,7 @@ class TestFile(unittest.TestCase):
 
         exif = self.__faux_exif() if withExif else piexif.dump({})
 
-        filename = f'test_files/{name}.jpg' 
+        filename = f'test_files/{name}.jpg'
         img = Image.new('RGB', (width, height), color=color)
         img.save(filename, 'jpeg', exif=exif)
         return filename
@@ -68,7 +73,6 @@ class TestFile(unittest.TestCase):
         img_c = self.__create_file(50, 50, 'red')
 
         photo_a = Photo(img_a, 'image/jpeg')
-        photo_c = Photo(img_b, 'image/jpeg')
 
         self.assertTrue(photo_a.hashes_match(img_b))
         self.assertFalse(photo_a.hashes_match(img_c))
@@ -137,19 +141,23 @@ class TestFile(unittest.TestCase):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.move('test_files/move')
-        self.assertTrue(os.path.exists('test_files/move/2099/September/29/ham.jpg'))
+        self.assertTrue(os.path.exists('test_files/move/2099/September/' +
+                                       '29/ham.jpg'))
 
     def test_copy(self):
         img_a = self.__create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.copy('test_files/copy')
-        self.assertTrue(os.path.exists('test_files/copy/2099/September/29/ham.jpg'))
+        self.assertTrue(os.path.exists('test_files/copy/2099/September/' +
+                                       '29/ham.jpg'))
+
 
 class TestPhoto(unittest.TestCase):
     def test_heic(self):
         photo = Photo('tests/files/lime.heic', 'image/heic')
         target = photo.target_path('foo')
         self.assertEqual(target, 'foo/2017/October/19/lime.heic')
+
 
 class TestUtil(unittest.TestCase):
     def test_read_mime(self):
@@ -164,6 +172,7 @@ class TestUtil(unittest.TestCase):
     def test_mime_photo(self):
         self.assertTrue(util.is_photo('image/jpeg'))
         self.assertFalse(util.is_photo('video/mp4'))
+
 
 if __name__ == "__main__":
     unittest.main()
