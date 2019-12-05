@@ -1,8 +1,4 @@
 import argparse
-
-from mediasort.photo import Photo
-from mediasort.video import Video
-from mediasort.util import is_video, is_photo, get_mimetype
 from mediasort.sort import MediaSort
 
 parser = argparse.ArgumentParser()
