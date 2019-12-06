@@ -38,6 +38,9 @@ class MediaSort:
             
             @returns    `True` if the path should not be processed. `False`
                         otherwise. """
+        if not self.excludes:
+            return
+
         for parent in self.excludes:
             x = os.path.commonpath([parent, path]) 
             if os.path.normpath(x) == os.path.normpath(parent):
@@ -52,10 +55,12 @@ class MediaSort:
             return
 
         for p in self.noprocess:
+            dst_path = os.path.join(dst, p)
+
             if self.copy:
-                shutil.copytree(p, dst) 
+                shutil.copytree(p, dst_path) 
             else:
-                shutil.move(p, dst)
+                shutil.move(p, dst_path)
 
     def process_files(self, src, dst):
         """ Kick off processing.
