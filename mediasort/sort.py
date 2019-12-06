@@ -1,4 +1,5 @@
 import os
+import shutil
 import logging
 
 from pathlib import Path
@@ -37,16 +38,24 @@ class MediaSort:
             
             @returns    `True` if the path should not be processed. `False`
                         otherwise. """
-        for parent in self.noprocess:
+        for parent in self.excludes:
             x = os.path.commonpath([parent, path]) 
             if os.path.normpath(x) == os.path.normpath(parent):
                 return True 
 
         return False
 
-    def handle_no_process_dirs(self):
-        """ """
-        pass
+    def handle_no_process_dirs(self, dst):
+        """ Directories marked as "no process" should be moved/copied into the
+            target directory without processing the files. """
+        if not self.noprocess:
+            return
+
+        for p in self.noprocess:
+            if self.copy:
+                shutil.copytree(p, dst) 
+            else:
+                shutil.move(p, dst)
 
     def process_files(self, src, dst):
         """ Kick off processing.
@@ -63,7 +72,7 @@ class MediaSort:
         total_duplicates = 0
         skipped = 0
 
-        self.handle_no_process_dirs() 
+        self.handle_no_process_dirs(dst) 
 
         for f in Path(src).rglob("*"):
             if not os.path.isfile(f):
@@ -106,4 +115,4 @@ class MediaSort:
         logger.info(f"\tTotal videos...: {total_videos}")
         logger.info(f"\tTotal photos...: {total_photos}")
         logger.info(f"\tDuplicates.....: {total_duplicates}")
-        logger.info(f"\tNo Process.....: {skipped}")
+        logger.info(f"\tExcluded.......: {skipped}")
