@@ -29,6 +29,25 @@ class MediaSort:
         self.noprocess = noprocess
         self.excludes = excludes
 
+    def is_exclude_dir(self, path):
+        """ Test if the filepath is located in one of the "no process" 
+            directory. 
+            
+            @param  path    The path to test.
+            
+            @returns    `True` if the path should not be processed. `False`
+                        otherwise. """
+        for parent in self.noprocess:
+            x = os.path.commonpath([parent, path]) 
+            if os.path.normpath(x) == os.path.normpath(parent):
+                return True 
+
+        return False
+
+    def handle_no_process_dirs(self):
+        """ """
+        pass
+
     def process_files(self, src, dst):
         """ Kick off processing.
         
@@ -42,22 +61,34 @@ class MediaSort:
         total_photos = 0
         total_videos = 0
         total_duplicates = 0
+        skipped = 0
+
+        self.handle_no_process_dirs() 
 
         for f in Path(src).rglob("*"):
-            path = f.as_posix()
-            mime = get_mimetype(path)
+            if not os.path.isfile(f):
+                continue
+
+            filepath = f.as_posix()
+
+            if self.is_exclude_dir(filepath):
+                skipped = skipped + 1
+                logger.info(f"{filepath} -- NO PROCESS")
+                continue
+
+            mime = get_mimetype(filepath)
             obj = None
 
             if is_video(mime):
-                obj = Video(path, mime)
+                obj = Video(filepath, mime)
                 total_videos = total_videos + 1
             elif is_photo(mime):
-                obj = Photo(path, mime)
+                obj = Photo(filepath, mime)
                 total_photos = total_photos + 1
 
             if obj:
                 if self.dry_run:
-                    logger.info(path)
+                    logger.info(filepath)
                 else:
                     took_action = False
                     if not self.copy:
@@ -69,9 +100,10 @@ class MediaSort:
                         total_duplicates = total_duplicates + 1
 
                     detail = ' -- DUPLICATE' if not took_action else ''
-                    logger.info(f"{path}{detail}")
+                    logger.info(f"{filepath}{detail}")
 
-        logger.info(f"Processed {total_photos+total_videos} files")
+        logger.info(f"Processed {total_photos+total_videos+skipped} files")
         logger.info(f"\tTotal videos...: {total_videos}")
         logger.info(f"\tTotal photos...: {total_photos}")
         logger.info(f"\tDuplicates.....: {total_duplicates}")
+        logger.info(f"\tNo Process.....: {skipped}")

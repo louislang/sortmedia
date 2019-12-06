@@ -22,18 +22,24 @@ parser.add_argument('dst',
                     help='The destination directory to move or copy files')
 parser.add_argument('-n',
                     '--noprocess',
-                    nargs='+',
                     help='List of directories to move but not recurse into ' +
-                         'for processing')
+                         'for processing',
+                    type=str)
 parser.add_argument('-e',
                     '--excludes',
-                    nargs='+',
-                    help='List of directories to skip completely')
+                    help='List of directories to skip completely',
+                    type=str)
 
 args = parser.parse_args()
 
 src = args.src[0]
 dst = args.dst[0]
+
+if args.noprocess:
+    args.noprocess = [x for x in args.noprocess.split(',')]
+
+if args.excludes:
+    args.excludes = [x for x in args.excludes.split(',')]
 
 ms = MediaSort(dry=args.dry, 
                copy=args.copy,
