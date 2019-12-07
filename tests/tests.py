@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import piexif
 import unittest
@@ -6,61 +7,63 @@ import random
 import string
 
 from PIL import Image
+from unittest.mock import MagicMock
+
 from mediasort.util import Safety
 from mediasort import util
 from mediasort.photo import Photo
 from mediasort.sort import MediaSort
 
+def randomword(n):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(n))
+
+def faux_exif():
+    zeroth_ifd = {
+            piexif.ImageIFD.Make: u"Canon",
+            piexif.ImageIFD.XResolution: (96, 1),
+            piexif.ImageIFD.YResolution: (96, 1),
+            piexif.ImageIFD.Software: u"piexif"
+    }
+
+    exif_ifd = {
+            piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
+            piexif.ExifIFD.LensMake: u"LensMake",
+            piexif.ExifIFD.Sharpness: 65535,
+            piexif.ExifIFD.LensSpecification: ((1, 1),
+                                               (1, 1),
+                                               (1, 1),
+                                               (1, 1)),
+    }
+
+    first_ifd = {
+            piexif.ImageIFD.Make: u"Canon",
+            piexif.ImageIFD.XResolution: (40, 1),
+            piexif.ImageIFD.YResolution: (40, 1),
+            piexif.ImageIFD.Software: u"piexif"
+    }
+
+    exif_dict = {
+            "0th": zeroth_ifd,
+            "Exif": exif_ifd,
+            "1st": first_ifd,
+    }
+
+    return piexif.dump(exif_dict)
+
+def create_file(width, height, color, name='', withExif=True):
+    if not name:
+        name = randomword(5)
+
+    exif = faux_exif() if withExif else piexif.dump({})
+
+    filename = f'test_files/{name}.jpg'
+    img = Image.new('RGB', (width, height), color=color)
+    img.save(filename, 'jpeg', exif=exif)
+    return filename
+
 
 class TestFile(unittest.TestCase):
-    def randomword(self, n):
-        letters = string.ascii_lowercase
-        return ''.join(random.choice(letters) for i in range(n))
-
-    def __faux_exif(self):
-        zeroth_ifd = {
-                piexif.ImageIFD.Make: u"Canon",
-                piexif.ImageIFD.XResolution: (96, 1),
-                piexif.ImageIFD.YResolution: (96, 1),
-                piexif.ImageIFD.Software: u"piexif"
-        }
-
-        exif_ifd = {
-                piexif.ExifIFD.DateTimeOriginal: u"2099:09:29 10:10:10",
-                piexif.ExifIFD.LensMake: u"LensMake",
-                piexif.ExifIFD.Sharpness: 65535,
-                piexif.ExifIFD.LensSpecification: ((1, 1),
-                                                   (1, 1),
-                                                   (1, 1),
-                                                   (1, 1)),
-        }
-
-        first_ifd = {
-                piexif.ImageIFD.Make: u"Canon",
-                piexif.ImageIFD.XResolution: (40, 1),
-                piexif.ImageIFD.YResolution: (40, 1),
-                piexif.ImageIFD.Software: u"piexif"
-        }
-
-        exif_dict = {
-                "0th": zeroth_ifd,
-                "Exif": exif_ifd,
-                "1st": first_ifd,
-        }
-
-        return piexif.dump(exif_dict)
-
-    def __create_file(self, width, height, color, name='', withExif=True):
-        if not name:
-            name = self.randomword(5)
-
-        exif = self.__faux_exif() if withExif else piexif.dump({})
-
-        filename = f'test_files/{name}.jpg'
-        img = Image.new('RGB', (width, height), color=color)
-        img.save(filename, 'jpeg', exif=exif)
-        return filename
-
     def setUp(self):
         if not os.path.exists('test_files'):
             os.mkdir('test_files')
@@ -69,9 +72,9 @@ class TestFile(unittest.TestCase):
         shutil.rmtree('test_files')
 
     def test_hashes(self):
-        img_a = self.__create_file(50, 50, 'blue')
-        img_b = self.__create_file(50, 50, 'blue')
-        img_c = self.__create_file(50, 50, 'red')
+        img_a = create_file(50, 50, 'blue')
+        img_b = create_file(50, 50, 'blue')
+        img_c = create_file(50, 50, 'red')
 
         photo_a = Photo(img_a, 'image/jpeg')
 
@@ -79,7 +82,7 @@ class TestFile(unittest.TestCase):
         self.assertFalse(photo_a.hashes_match(img_c))
 
     def test_no_exif(self):
-        img = self.__create_file(50, 50, 'green', withExif=False)
+        img = create_file(50, 50, 'green', withExif=False)
         photo = Photo(img, 'image/jpeg')
         target = photo.target_path('foobar')
 
@@ -87,13 +90,13 @@ class TestFile(unittest.TestCase):
         self.assertTrue(target, f'/foobar/unknown/{basename}')
 
     def test_path_from_date(self):
-        img_a = self.__create_file(50, 50, 'red', name='foobar')
+        img_a = create_file(50, 50, 'red', name='foobar')
         photo = Photo(img_a, 'image/jpeg')
         target = photo.target_path('foobar')
         self.assertEqual(target, 'foobar/2099/September/29/foobar.jpg')
 
     def test_ignore_duplicate_at_target(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
 
         ret = photo.write_check(img_a)
@@ -103,7 +106,7 @@ class TestFile(unittest.TestCase):
         self.assertEqual(target_path, 'foobar/2099/September/29/ham.jpg')
 
     def test_no_file_at_target(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
 
         ret = photo.write_check('foobar/ham.jpg')
@@ -113,7 +116,7 @@ class TestFile(unittest.TestCase):
         self.assertEqual(target_path, 'foobar/2099/September/29/ham.jpg')
 
     def test_file_at_target_non_duplicate(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
 
         # Create a non-identical file at the target.
         target_dir = os.path.join('test_files', '2099', 'September', '29')
@@ -133,20 +136,20 @@ class TestFile(unittest.TestCase):
         self.assertTrue(target_path.endswith('_1.jpg'))
 
     def test_make_nested_dirs(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.make_nested_dirs('test_files/baz/ham.jpg')
         self.assertTrue(os.path.isdir('test_files/baz'))
 
     def test_move(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.move('test_files/move')
         self.assertTrue(os.path.exists('test_files/move/2099/September/' +
                                        '29/ham.jpg'))
 
     def test_copy(self):
-        img_a = self.__create_file(50, 50, 'blue', name='ham')
+        img_a = create_file(50, 50, 'blue', name='ham')
         photo = Photo(img_a, 'image/jpeg')
         photo.copy('test_files/copy')
         self.assertTrue(os.path.exists('test_files/copy/2099/September/' +
@@ -176,6 +179,16 @@ class TestUtil(unittest.TestCase):
 
 
 class TestMediaSort(unittest.TestCase):
+    def setUp(self):
+        if not os.path.exists('test_files'):
+            os.mkdir('test_files')
+
+    def tearDown(self):
+        if os.path.exists('test_files'):
+            shutil.rmtree('test_files')
+
+        if os.path.exists('test_move'):
+            shutil.rmtree('test_move')
 
     def test_exclude_dir(self):
         ms = MediaSort(excludes=['foo/bar'])
@@ -183,10 +196,22 @@ class TestMediaSort(unittest.TestCase):
         self.assertFalse(ms.is_exclude_dir('spam/eggs/blah.jpg'))
 
     def test_handle_no_process_dirs(self):
-        pass
+        img_a = create_file(50, 50, 'blue', name='spam')
+        img_b = create_file(50, 50, 'red', name='eggs')
+
+        ms = MediaSort(noprocess=['test_files'])
+        ms.process_files('test_files/', 'test_move/')
+
+        self.assertTrue(os.path.isdir('test_move/test_files'))
 
     def test_process_files(self):
-        pass
+        img_a = create_file(50, 50, 'blue', name='spam')
+        img_b = create_file(50, 50, 'red', name='eggs')
+        ms = MediaSort()
+        ms.process_files('test_files/', 'test_move/')
+
+        self.assertTrue(os.path.exists('test_move/2099/September/29/spam.jpg'))
+        self.assertTrue(os.path.exists('test_move/2099/September/29/eggs.jpg'))
 
     def test_symlink(self):
         pass
