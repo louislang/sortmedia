@@ -9,6 +9,7 @@ from PIL import Image
 from mediasort.util import Safety
 from mediasort import util
 from mediasort.photo import Photo
+from mediasort.sort import MediaSort
 
 
 class TestFile(unittest.TestCase):
@@ -172,6 +173,23 @@ class TestUtil(unittest.TestCase):
     def test_mime_photo(self):
         self.assertTrue(util.is_photo('image/jpeg'))
         self.assertFalse(util.is_photo('video/mp4'))
+
+
+class TestMediaSort(unittest.TestCase):
+
+    def test_exclude_dir(self):
+        ms = MediaSort(excludes=['foo/bar'])
+        self.assertTrue(ms.is_exclude_dir('foo/bar/spam.jpg'))
+        self.assertFalse(ms.is_exclude_dir('spam/eggs/blah.jpg'))
+
+    def test_handle_no_process_dirs(self):
+        pass
+
+    def test_process_files(self):
+        pass
+
+    def test_symlink(self):
+        pass
 
 
 if __name__ == "__main__":
