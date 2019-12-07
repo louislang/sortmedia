@@ -1,5 +1,10 @@
 # Mediasort
-Dedupe and sort images and video files based on their creation date. Includes facilities for handling `heic` files (common on iOS), excluding directories and skipping processing for directories.
+Dedupe and sort images and video files based on their creation date. 
+
+* Handles images and video files.
+* Support for `heic` files (common iOS format).
+* Supports excluding directories.
+* Removes duplicates based on file hash.
 
 ## Installation
 `pip install mediasort`
