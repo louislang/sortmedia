@@ -1,4 +1,7 @@
 # Mediasort
+![Actions Status](https://github.com/LouisLang/mediasort/workflows/Python%20application/badge.svg)
+![MIT License Badge](https://img.shields.io/github/license/LouisLang/mediasort) 
+
 Dedupe and sort images and video files based on their creation date. 
 
 ![Image of Sorted Files](https://github.com/LouisLang/mediasort/blob/master/resources/demo.png)
