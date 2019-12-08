@@ -1,4 +1,4 @@
-# Mediasort
+# mediasort
 ![Actions Status](https://github.com/LouisLang/mediasort/workflows/Python%20application/badge.svg)
 ![MIT License Badge](https://img.shields.io/github/license/LouisLang/mediasort) 
 
