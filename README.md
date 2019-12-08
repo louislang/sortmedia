@@ -1,4 +1,4 @@
-# mediasort
+# sortmedia
 ![Actions Status](https://github.com/LouisLang/mediasort/workflows/Python%20application/badge.svg)
 ![MIT License Badge](https://img.shields.io/github/license/LouisLang/mediasort) 
 ![Coverage](https://github.com/LouisLang/mediasort/blob/master/resources/coverage.svg)
@@ -14,22 +14,22 @@ Dedupe and sort images and video files based on their creation date.
 * Organizes files into `year/month/day/files.ext`.
 
 ## Installation
-`pip install mediasort`
+`pip install sortmedia`
 
 ## Command Line Usage
 ### Sorting a directory of media files, *move* to destination directory.
 Basic usage - processing a directory of media files `foo` and moving them to the destination directory `bar`.
 
-`mediasort foo bar`
+`sortmedia foo bar`
 
 ### Sorting a directory of media files, *copy* to destination directory.
 Instead of moving files (the default), copy the files leaving the source directory `foo` intact. 
 
-`mediasort -c foo bar`
+`sortmedia -c foo bar`
 
 or 
 
-`mediasort --copy foo bar`
+`sortmedia --copy foo bar`
 
 ### Exclude directory
 You can list a set of directories that we should completely ignore. Assuming the following directory structure:
@@ -43,7 +43,7 @@ foo/
   ...
 ```
 
-`mediasort --exclude=foo/ignoreMe,foo/ignoreMeToo foo/ bar/`
+`sortmedia --exclude=foo/ignoreMe,foo/ignoreMeToo foo/ bar/`
 
 ### Skip processing for a specified directory - but still move/copy.
 If you have directories that are already sorted, that you'd like to skip processing but still move or copy you can mark them as "no process" directories. Assuming the following directory structure:
@@ -56,7 +56,7 @@ foo/
   ...
 ```
 
-`mediasort --noprocess=foo/alreadySorted/ foo/ bar/`
+`sortmedia --noprocess=foo/alreadySorted/ foo/ bar/`
 
 This will result in `alreadySorted/` being moved to `bar/` without analyzing the files under that directory.
 
