@@ -12,10 +12,6 @@ Dedupe and sort images and video files based on their creation date.
 ## Installation
 `pip install mediasort`
 
-or
-
-`python setup.py`
-
 ## Command Line Usage
 ### Sorting a directory of media files, *move* to destination directory.
 Basic usage - processing a directory of media files `foo` and moving them to the destination directory `bar`.
