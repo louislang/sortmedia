@@ -2,18 +2,18 @@
 
 from setuptools import setup
 
-setup(name='mediasort',
+setup(name='sortmedia',
       version='1.0',
       description='Dedupe and sort photo and video files based on the date ' +
                   'they were created.',
       author='Louis Lang',
       author_email='louis@lang.sh',
-      url='https://github.com/LouisLang/mediasort',
+      url='https://github.com/LouisLang/sortmedia',
       keywords='file-sorting media-manager photos videos',
-      packages=['mediasort'],
+      packages=['sortmedia'],
       entry_points={
         'console_scripts': [
-            'mediasort=mediasort.cli:main',
+            'sortmedia=sortmedia.cli:main',
         ],
       },
      )

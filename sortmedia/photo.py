@@ -4,7 +4,7 @@ import pyheif
 import PIL.Image
 import PIL.ExifTags
 
-from mediasort.file import File
+from sortmedia.file import File
 from datetime import datetime
 
 

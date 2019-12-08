@@ -3,15 +3,15 @@ import shutil
 import logging
 
 from pathlib import Path
-from mediasort.photo import Photo
-from mediasort.video import Video
-from mediasort.util import is_video, is_photo, get_mimetype
+from sortmedia.photo import Photo
+from sortmedia.video import Video
+from sortmedia.util import is_video, is_photo, get_mimetype
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-class MediaSort:
+class SortMedia:
     """ Handles processing the specified source path. """
 
     def __init__(self, dry=False, copy=False, noprocess=[], excludes=[]):

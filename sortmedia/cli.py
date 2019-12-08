@@ -1,6 +1,5 @@
 import argparse
-from mediasort.sort import MediaSort
-
+from sortmedia.sort import SortMedia
 
 def main():
     parser = argparse.ArgumentParser()
@@ -43,7 +42,7 @@ def main():
     if args.excludes:
         args.excludes = [x for x in args.excludes.split(',')]
 
-    ms = MediaSort(dry=args.dry, 
+    ms = SortMedia(dry=args.dry, 
                    copy=args.copy,
                    noprocess=args.noprocess,
                    excludes=args.excludes)

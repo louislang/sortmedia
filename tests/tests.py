@@ -9,10 +9,10 @@ import string
 from PIL import Image
 from unittest.mock import MagicMock
 
-from mediasort.util import Safety
-from mediasort import util
-from mediasort.photo import Photo
-from mediasort.sort import MediaSort
+from sortmedia.util import Safety
+from sortmedia import util
+from sortmedia.photo import Photo
+from sortmedia.sort import SortMedia
 
 def randomword(n):
     letters = string.ascii_lowercase
@@ -178,7 +178,7 @@ class TestUtil(unittest.TestCase):
         self.assertFalse(util.is_photo('video/mp4'))
 
 
-class TestMediaSort(unittest.TestCase):
+class TestSortMedia(unittest.TestCase):
     def setUp(self):
         if not os.path.exists('test_files'):
             os.mkdir('test_files')
@@ -191,7 +191,7 @@ class TestMediaSort(unittest.TestCase):
             shutil.rmtree('test_move')
 
     def test_exclude_dir(self):
-        ms = MediaSort(excludes=['foo/bar'])
+        ms = SortMedia(excludes=['foo/bar'])
         self.assertTrue(ms.is_exclude_dir('foo/bar/spam.jpg'))
         self.assertFalse(ms.is_exclude_dir('spam/eggs/blah.jpg'))
 
@@ -199,7 +199,7 @@ class TestMediaSort(unittest.TestCase):
         img_a = create_file(50, 50, 'blue', name='spam')
         img_b = create_file(50, 50, 'red', name='eggs')
 
-        ms = MediaSort(noprocess=['test_files'])
+        ms = SortMedia(noprocess=['test_files'])
         ms.process_files('test_files/', 'test_move/')
 
         self.assertTrue(os.path.isdir('test_move/test_files'))
@@ -207,7 +207,7 @@ class TestMediaSort(unittest.TestCase):
     def test_process_files(self):
         img_a = create_file(50, 50, 'blue', name='spam')
         img_b = create_file(50, 50, 'red', name='eggs')
-        ms = MediaSort()
+        ms = SortMedia()
         ms.process_files('test_files/', 'test_move/')
 
         self.assertTrue(os.path.exists('test_move/2099/September/29/spam.jpg'))

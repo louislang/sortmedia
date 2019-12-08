@@ -1,7 +1,7 @@
 import json
 
 from datetime import datetime
-from mediasort.file import File
+from sortmedia.file import File
 from subprocess import check_output
 
 
