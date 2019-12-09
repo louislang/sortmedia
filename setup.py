@@ -15,7 +15,7 @@ setup(name='sortmedia',
       description='Dedupe and sort photo and video files based on the date ' +
                   'they were created.',
       long_description=long_description,
-      long_description_content_type='text/markdown'
+      long_description_content_type='text/markdown',
       author='Louis Lang',
       author_email='louis@lang.sh',
       url='https://github.com/LouisLang/sortmedia',
