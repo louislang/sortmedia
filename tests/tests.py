@@ -7,17 +7,18 @@ import random
 import string
 
 from PIL import Image
+from subprocess import check_output
 from unittest.mock import MagicMock
 
-from sortmedia.util import Safety
 from sortmedia import util
+from sortmedia.util import Safety
 from sortmedia.photo import Photo
+from sortmedia.video import Video 
 from sortmedia.sort import SortMedia
 
 def randomword(n):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(n))
-
+    return ''.join(random.choice(letters) for i in range(n)) 
 def faux_exif():
     zeroth_ifd = {
             piexif.ImageIFD.Make: u"Canon",
@@ -161,6 +162,20 @@ class TestPhoto(unittest.TestCase):
         photo = Photo('tests/files/lime.heic', 'image/heic')
         target = photo.target_path('foo')
         self.assertEqual(target, 'foo/2017/October/19/lime.heic')
+
+
+class TestVideo(unittest.TestCase):
+    def test_creation_date(self):
+        video = Video('tests/files/video.mp4', 'video/mp4')
+        exif = video.get_exif()
+        created = video.creation_date()
+        self.assertEqual({'year': '2015', 'month': 'December', 'day': '25'},
+                created)
+
+    def test_get_exif(self):
+        video = Video('tests/files/video.mp4', 'video/mp4')
+        exif = video.get_exif()
+        self.assertEqual({'creation_time': '2015-12-25T18:34:56.000000Z'}, exif)
 
 
 class TestUtil(unittest.TestCase):
