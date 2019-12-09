@@ -2,6 +2,7 @@
 ![Actions Status](https://github.com/LouisLang/sortmedia/workflows/Python%20application/badge.svg)
 ![MIT License Badge](https://img.shields.io/github/license/LouisLang/sortmedia) 
 [![Coverage Status](https://coveralls.io/repos/github/LouisLang/sortmedia/badge.svg?branch=master)](https://coveralls.io/github/LouisLang/sortmedia?branch=master)
+[![GitHub issues](https://img.shields.io/github/issues/LouisLang/sortmedia)](https://github.com/LouisLang/sortmedia/issues)
 
 Dedupe and sort images and video files based on their creation date. 
 
