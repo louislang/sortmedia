@@ -31,8 +31,8 @@ class SortMedia:
         self.excludes = excludes
 
     def is_exclude_dir(self, path):
-        """ Test if the filepath is located in one of the "no process" 
-            directory. 
+        """ Test if the filepath is located in one of the specified exclude 
+            directories. 
             
             @param  path    The path to test.
             
