@@ -11,7 +11,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='sortmedia',
-      version='1.2.0',
+      version='1.2.1',
       description='Dedupe and sort photo and video files based on the date ' +
                   'they were created.',
       long_description=long_description,
